@@ -1,0 +1,172 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Events - Event Management System{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Events</h1>
+            <p class="text-gray-600">Manage all your events</p>
+        </div>
+        <a href="{% url 'event_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-md">
+            + Create Event
+        </a>
+    </div>
+</div>
+
+<!-- Search and Filter Section -->
+<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <form method="GET" action="{% url 'event_list' %}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Search Input -->
+        <div>
+            <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Events</label>
+            <input type="text" 
+                   id="search" 
+                   name="search" 
+                   value="{{ search_query }}"
+                   placeholder="Search by name or location..."
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <!-- Category Filter -->
+        <div>
+            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+            <select id="category" 
+                    name="category"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"s" %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Date From -->
+        <div>
+            <label for="date_from" class="block text-sm font-medium text-gray-700 mb-2">Date From</label>
+            <input type="date" 
+                   id="date_from" 
+                   name="date_from" 
+                   value="{{ date_from }}"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <!-- Date To -->
+        <div>
+            <label for="date_to" class="block text-sm font-medium text-gray-700 mb-2">Date To</label>
+            <input type="date" 
+                   id="date_to" 
+                   name="date_to" 
+                   value="{{ date_to }}"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="md:col-span-2 lg:col-span-4 flex gap-4">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium">
+                Apply Filters
+            </button>
+            <a href="{% url 'event_list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium">
+                Clear Filters
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Events List -->
+{% if events %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for event in events %}
+    <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow overflow-hidden">
+        <div class="p-6">
+            <!-- Category Badge -->
+            <div class="mb-3">
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    {{ event.category.name }}
+                </span>
+                {% if event.is_today %}
+                <span class="ml-2 px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                    Today
+                </span>
+                {% elif event.is_upcoming %}
+                <span class="ml-2 px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                    Upcoming
+                </span>
+                {% else %}
+                <span class="ml-2 px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                    Past
+                </span>
+                {% endif %}
+            </div>
+
+            <!-- Event Name -->
+            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ event.name }}</h3>
+            
+            <!-- Description -->
+            <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ event.description|truncatewords:20 }}</p>
+            
+            <!-- Date and Time -->
+            <div class="flex items-center text-sm text-gray-500 mb-2">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                {{ event.date|date:"M d, Y" }} at {{ event.time|time:"g:i A" }}
+            </div>
+            
+            <!-- Location -->
+            <div class="flex items-center text-sm text-gray-500 mb-4">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                {{ event.location|truncatewords:8 }}
+            </div>
+            
+            <!-- Participants Count -->
+            <div class="flex items-center text-sm text-gray-500 mb-4">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                {{ event.participants.count }} participant{{ event.participants.count|pluralize }}
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="bg-gray-50 px-6 py-4 flex justify-between items-center border-t">
+            <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                View Details →
+            </a>
+            <div class="flex gap-2">
+                <a href="{% url 'event_update' event.pk %}" class="text-yellow-600 hover:text-yellow-800 font-medium text-sm">
+                    Edit
+                </a>
+                <a href="{% url 'event_delete' event.pk %}" class="text-red-600 hover:text-red-800 font-medium text-sm">
+                    Delete
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-white rounded-lg shadow-md p-12 text-center">
+    <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+    </svg>
+    <h3 class="text-xl font-medium text-gray-900 mb-2">No events found</h3>
+    <p class="text-gray-500 mb-6">
+        {% if search_query or category_filter or date_from or date_to %}
+        Try adjusting your search filters or create a new event.
+        {% else %}
+        Get started by creating your first event.
+        {% endif %}
+    </p>
+    <a href="{% url 'event_create' %}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+        + Create Event
+    </a>
+</div>
+{% endif %}
+{% endblock %}

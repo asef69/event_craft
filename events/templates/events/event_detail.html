@@ -1,0 +1,162 @@
+{% extends 'events/base.html' %}
+
+{% block title %}{{ event.name }} - Event Management System{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'event_list' %}" class="text-blue-600 hover:text-blue-800 font-medium">
+        ← Back to Events
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <!-- Header Section -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-8 py-6">
+        <div class="flex justify-between items-start">
+            <div>
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-white text-blue-800 mb-3 inline-block">
+                    {{ event.category.name }}
+                </span>
+                <h1 class="text-3xl font-bold text-white mb-2">{{ event.name }}</h1>
+                <div class="flex items-center text-blue-100">
+                    {% if event.is_today %}
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-500 text-white mr-2">
+                        Today
+                    </span>
+                    {% elif event.is_upcoming %}
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-500 text-white mr-2">
+                        Upcoming
+                    </span>
+                    {% else %}
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-500 text-white mr-2">
+                        Past Event
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <a href="{% url 'event_update' event.pk %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg font-medium shadow-md">
+                    Edit Event
+                </a>
+                <a href="{% url 'event_delete' event.pk %}" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-medium shadow-md">
+                    Delete
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Details -->
+    <div class="px-8 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Event Description</h2>
+                <p class="text-gray-700 leading-relaxed mb-8">{{ event.description }}</p>
+
+                <!-- Participants Section -->
+                <h2 class="text-xl font-bold text-gray-900 mb-4">
+                    Participants ({{ event.participants.count }})
+                </h2>
+                
+                {% if event.participants.all %}
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for participant in event.participants.all %}
+                        <div class="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 rounded-full p-3 mr-4">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-gray-900">{{ participant.name }}</h3>
+                                    <p class="text-sm text-gray-500">{{ participant.email }}</p>
+                                </div>
+                                <a href="{% url 'participant_detail' participant.pk %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    View
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="bg-gray-50 rounded-lg p-12 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    <p class="text-gray-500 mb-4">No participants registered for this event yet.</p>
+                    <a href="{% url 'participant_create' %}" class="text-blue-600 hover:text-blue-800 font-medium">
+                        Add a Participant →
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-gray-50 rounded-lg p-6 sticky top-8">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Event Information</h3>
+                    
+                    <!-- Date & Time -->
+                    <div class="mb-6">
+                        <div class="flex items-start mb-2">
+                            <svg class="w-5 h-5 text-gray-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Date & Time</p>
+                                <p class="text-sm text-gray-900 font-semibold">{{ event.date|date:"l, F d, Y" }}</p>
+                                <p class="text-sm text-gray-600">{{ event.time|time:"g:i A" }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="mb-6">
+                        <div class="flex items-start mb-2">
+                            <svg class="w-5 h-5 text-gray-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Location</p>
+                                <p class="text-sm text-gray-900">{{ event.location }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="mb-6">
+                        <div class="flex items-start mb-2">
+                            <svg class="w-5 h-5 text-gray-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Category</p>
+                                <a href="{% url 'category_detail' event.category.pk %}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                    {{ event.category.name }} →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Participants Count -->
+                    <div class="pt-6 border-t border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                <span class="text-sm font-medium text-gray-700">Total Participants</span>
+                            </div>
+                            <span class="text-2xl font-bold text-blue-600">{{ event.participants.count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

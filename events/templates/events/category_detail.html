@@ -1,0 +1,122 @@
+{% extends 'events/base.html' %}
+
+{% block title %}{{ category.name }} - Event Management System{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'category_list' %}" class="text-blue-600 hover:text-blue-800 font-medium">
+        ← Back to Categories
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+    <!-- Header Section -->
+    <div class="bg-gradient-to-r from-purple-600 to-purple-800 px-8 py-6">
+        <div class="flex justify-between items-start">
+            <div class="flex items-center">
+                <div class="bg-white rounded-full p-4 mr-4">
+                    <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">{{ category.name }}</h1>
+                    <p class="text-purple-100">{{ events.count }} event{{ events.count|pluralize }} in this category</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <a href="{% url 'category_update' category.pk %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg font-medium shadow-md">
+                    Edit
+                </a>
+                <a href="{% url 'category_delete' category.pk %}" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-medium shadow-md">
+                    Delete
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Description -->
+    <div class="px-8 py-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Description</h2>
+        <p class="text-gray-700 leading-relaxed">{{ category.description }}</p>
+    </div>
+</div>
+
+<!-- Events in this Category -->
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Events in {{ category.name }}</h2>
+    
+    {% if events %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for event in events %}
+        <div class="bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow overflow-hidden">
+            <div class="p-6">
+                <!-- Status Badge -->
+                {% if event.is_today %}
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                    Today
+                </span>
+                {% elif event.is_upcoming %}
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                    Upcoming
+                </span>
+                {% else %}
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                    Past
+                </span>
+                {% endif %}
+                
+                <!-- Event Name -->
+                <h3 class="text-lg font-bold text-gray-900 mt-3 mb-2">{{ event.name }}</h3>
+                
+                <!-- Description -->
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ event.description|truncatewords:15 }}</p>
+                
+                <!-- Date & Time -->
+                <div class="flex items-center text-sm text-gray-500 mb-2">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    {{ event.date|date:"M d, Y" }} at {{ event.time|time:"g:i A" }}
+                </div>
+                
+                <!-- Location -->
+                <div class="flex items-center text-sm text-gray-500 mb-4">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    {{ event.location|truncatewords:5 }}
+                </div>
+                
+                <!-- Participants -->
+                <div class="flex items-center text-sm text-gray-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    {{ event.participants.count }} participant{{ event.participants.count|pluralize }}
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="bg-gray-50 px-6 py-4 border-t">
+                <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                    View Event Details →
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <p class="text-gray-500 mb-4">No events in this category yet.</p>
+        <a href="{% url 'event_create' %}" class="text-blue-600 hover:text-blue-800 font-medium">
+            Create an event in this category →
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

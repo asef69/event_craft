@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Event Management System{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="bg-blue-600 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="{% url 'dashboard' %}" class="text-white text-xl font-bold">
+                            Event Management
+                        </a>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="{% url 'dashboard' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
+                            Dashboard
+                        </a>
+                        <a href="{% url 'event_list' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
+                            Events
+                        </a>
+                        <a href="{% url 'participant_list' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
+                            Participants
+                        </a>
+                        <a href="{% url 'category_list' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
+                            Categories
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+                    <a href="{% url 'event_create' %}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        + New Event
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div class="sm:hidden">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="{% url 'dashboard' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                    Dashboard
+                </a>
+                <a href="{% url 'event_list' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                    Events
+                </a>
+                <a href="{% url 'participant_list' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                    Participants
+                </a>
+                <a href="{% url 'category_list' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                    Categories
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        {% for message in messages %}
+        <div class="{% if message.tags == 'success' %}bg-green-100 border-green-400 text-green-700{% elif message.tags == 'error' %}bg-red-100 border-red-400 text-red-700{% else %}bg-blue-100 border-blue-400 text-blue-700{% endif %} border px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <p class="text-center text-sm">
+                &copy; 2025 Event Management System. All rights reserved.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
