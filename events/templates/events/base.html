@@ -17,6 +17,7 @@
                             Event Management
                         </a>
                     </div>
+                    {% if user.is_authenticated %}
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                         <a href="{% url 'dashboard' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
                             Dashboard
@@ -24,23 +25,44 @@
                         <a href="{% url 'event_list' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
                             Events
                         </a>
-                        <a href="{% url 'participant_list' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                            Participants
-                        </a>
+                        {% if user.is_superuser or 'Admin' in group_names or 'Organizer' in group_names %}
                         <a href="{% url 'category_list' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
                             Categories
                         </a>
+                        {% endif %}
+                        {% if user.is_superuser or 'Admin' in group_names %}
+                        <a href="{% url 'participant_list' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
+                            Participants
+                        </a>
+                        {% endif %}
                     </div>
+                    {% endif %}
                 </div>
                 <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
-                    <a href="{% url 'event_create' %}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                        + New Event
-                    </a>
+                    {% if user.is_authenticated %}
+                        {% if user.is_superuser or 'Admin' in group_names or 'Organizer' in group_names %}
+                        <a href="{% url 'event_create' %}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            + New Event
+                        </a>
+                        {% endif %}
+                        <span class="text-white text-sm">Hi, {{ user.first_name|default:user.username }}</span>
+                        <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="bg-white hover:bg-gray-100 text-blue-600 px-4 py-2 rounded-md text-sm font-medium">
+                            Login
+                        </a>
+                        <a href="{% url 'signup' %}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            Sign Up
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
         
         <!-- Mobile menu -->
+        {% if user.is_authenticated %}
         <div class="sm:hidden">
             <div class="pt-2 pb-3 space-y-1">
                 <a href="{% url 'dashboard' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
@@ -49,14 +71,19 @@
                 <a href="{% url 'event_list' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
                     Events
                 </a>
-                <a href="{% url 'participant_list' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
-                    Participants
-                </a>
+                {% if user.is_superuser or 'Admin' in group_names or 'Organizer' in group_names %}
                 <a href="{% url 'category_list' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
                     Categories
                 </a>
+                {% endif %}
+                {% if user.is_superuser or 'Admin' in group_names %}
+                <a href="{% url 'participant_list' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                    Participants
+                </a>
+                {% endif %}
             </div>
         </div>
+        {% endif %}
     </nav>
 
     <!-- Messages -->

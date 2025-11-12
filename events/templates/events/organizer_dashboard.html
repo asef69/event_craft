@@ -1,0 +1,127 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Organizer Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Organizer Dashboard</h1>
+    <p class="text-gray-600">Manage events and categories</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <a href="?filter=all" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600 mb-1">Total Events</p>
+                <p class="text-3xl font-bold text-gray-900">{{ total_events }}</p>
+            </div>
+            <div class="bg-green-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+        </div>
+    </a>
+
+    <a href="?filter=upcoming" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600 mb-1">Upcoming Events</p>
+                <p class="text-3xl font-bold text-gray-900">{{ upcoming_events }}</p>
+            </div>
+            <div class="bg-yellow-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+    </a>
+
+    <a href="{% url 'category_list' %}" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600 mb-1">Categories</p>
+                <p class="text-3xl font-bold text-gray-900">{{ total_categories }}</p>
+            </div>
+            <div class="bg-purple-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+            </div>
+        </div>
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">{{ filter_title }}</h2>
+        {% if filter_type != 'today' %}
+        <a href="{% url 'dashboard' %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+            ← Back to Today's Events
+        </a>
+        {% endif %}
+    </div>
+
+    {% if filtered_events %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for event in filtered_events %}
+        <div class="bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow overflow-hidden">
+            <div class="p-6">
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    {{ event.category.name }}
+                </span>
+                {% if event.is_today %}
+                <span class="ml-2 px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                    Today
+                </span>
+                {% elif event.is_upcoming %}
+                <span class="ml-2 px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                    Upcoming
+                </span>
+                {% endif %}
+                
+                <h3 class="text-lg font-bold text-gray-900 mt-3 mb-2">{{ event.name }}</h3>
+                <p class="text-gray-600 text-sm mb-4">{{ event.description|truncatewords:15 }}</p>
+                
+                <div class="flex items-center text-sm text-gray-500 mb-2">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    {{ event.date|date:"M d, Y" }} at {{ event.time|time:"g:i A" }}
+                </div>
+                
+                <div class="flex items-center text-sm text-gray-500 mb-2">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    {{ event.location|truncatewords:5 }}
+                </div>
+                
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                    {{ event.rsvp_users.count }} RSVPs
+                </span>
+            </div>
+            <div class="bg-gray-50 px-6 py-4 flex justify-between items-center border-t">
+                <a href="{% url 'event_detail' event.pk %}" class="text-blue-600 hover:text-blue-800 font-medium text-sm">View</a>
+                <div class="flex gap-2">
+                    <a href="{% url 'event_update' event.pk %}" class="text-yellow-600 hover:text-yellow-800 font-medium text-sm">Edit</a>
+                    <a href="{% url 'event_delete' event.pk %}" class="text-red-600 hover:text-red-800 font-medium text-sm">Delete</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <p class="text-gray-500 mb-6 mt-4">No events found.</p>
+        <a href="{% url 'event_create' %}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+            + Create Event
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

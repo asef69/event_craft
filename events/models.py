@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import EmailValidator
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 class Category(models.Model):
@@ -21,6 +21,8 @@ class Event(models.Model):
     time = models.TimeField()
     location = models.CharField(max_length=300)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='events')
+    image = models.ImageField(upload_to='event_images/', default='event_images/default.jpg')
+    rsvp_users = models.ManyToManyField(User, related_name='rsvp_events', blank=True)
     
     class Meta:
         ordering = ['-date', '-time']
@@ -40,13 +42,10 @@ class Event(models.Model):
         return self.date == timezone.now().date()
 
 
-class Participant(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField(validators=[EmailValidator()], unique=True)
-    events = models.ManyToManyField(Event, related_name='participants', blank=True)
-    
-    class Meta:
-        ordering = ['name']
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    is_activated = models.BooleanField(default=False)
+    activation_token = models.CharField(max_length=100, blank=True, null=True)
     
     def __str__(self):
-        return self.name
+        return f"{self.user.username}'s profile"
