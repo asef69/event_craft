@@ -2,17 +2,15 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect
 from django.contrib import messages
 from functools import wraps
-from django.contrib.auth import logout
 
 
 def activation_required(view_func):
+    """Decorator to check if user account is activated"""
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if request.user.is_authenticated:
-            profile = getattr(request.user, 'profile', None)
-            if profile and not profile.is_activated:
-                messages.error(request, 'Please activate your account. We just logged you out.')
-                logout(request)  
+            if not request.user.is_activated:
+                messages.error(request, 'Please activate your account first. Check your email for the activation link.')
                 return redirect('login')
         return view_func(request, *args, **kwargs)
     return wrapper

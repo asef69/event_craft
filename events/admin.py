@@ -1,7 +1,22 @@
 from django.contrib import admin
-from django.contrib.auth.models import User
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import Event, Category, UserProfile
+from django.contrib.auth.admin import UserAdmin
+from .models import Event, Category, CustomUser
+
+
+@admin.register(CustomUser)
+class CustomUserAdmin(UserAdmin):
+    model = CustomUser
+    list_display = ['username', 'email', 'first_name', 'last_name', 'is_activated', 'is_staff']
+    list_filter = ['is_staff', 'is_superuser', 'is_active', 'is_activated', 'groups']
+    
+    fieldsets = UserAdmin.fieldsets + (
+        ('Additional Info', {'fields': ('profile_picture', 'phone_number', 'is_activated', 'activation_token')}),
+    ) # type: ignore
+    
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        ('Additional Info', {'fields': ('profile_picture', 'phone_number')}),
+    )
+
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -24,10 +39,3 @@ class EventAdmin(admin.ModelAdmin):
     def rsvp_count(self, obj):
         return obj.rsvp_users.count()
     rsvp_count.short_description = 'RSVPs' # type: ignore
-
-
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'is_activated', 'activation_token']
-    list_filter = ['is_activated']
-    search_fields = ['user__username', 'user__email']

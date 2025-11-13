@@ -117,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Dhaka'
 
 USE_I18N = True
 
@@ -140,7 +140,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = 'asefkabir97@gmail.com'          # your Gmail address
-EMAIL_HOST_PASSWORD = 'zjfzpdkimioodlvm' # paste app password here (no spaces)
+EMAIL_HOST_PASSWORD = 'zjfzpdkimioodlvm' 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 MEDIA_URL = '/media/'
@@ -151,3 +151,4 @@ SITE_URL = [
     "https://*.onrender.com",
     "http://localhost:8000",
 ]
+AUTH_USER_MODEL = 'events.CustomUser'

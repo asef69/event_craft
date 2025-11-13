@@ -1,41 +1,44 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-    
-    path('signup/', views.signup, name='signup'),
-    path('login/', views.user_login, name='login'),
-    path('logout/', views.user_logout, name='logout'),
-    path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
-    
-    
-    path('', views.dashboard, name='dashboard'),
-    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
-    path('organizer-dashboard/', views.organizer_dashboard, name='organizer_dashboard'),
-    path('participant-dashboard/', views.participant_dashboard, name='participant_dashboard'),
-    
-    
-    path('events/', views.event_list, name='event_list'),
-    path('events/<int:pk>/', views.event_detail, name='event_detail'),
-    path('events/create/', views.event_create, name='event_create'),
-    path('events/<int:pk>/update/', views.event_update, name='event_update'),
-    path('events/<int:pk>/delete/', views.event_delete, name='event_delete'),
-    
-   
-    path('events/<int:pk>/rsvp/', views.rsvp_event, name='rsvp_event'),
-    path('events/<int:pk>/cancel-rsvp/', views.cancel_rsvp, name='cancel_rsvp'),
-    
-    
-    path('participants/', views.participant_list, name='participant_list'),
-    path('participants/<int:pk>/', views.participant_detail, name='participant_detail'),
-    path('participants/create/', views.participant_create, name='participant_create'),
-    path('participants/<int:pk>/update/', views.participant_update, name='participant_update'),
-    path('participants/<int:pk>/delete/', views.participant_delete, name='participant_delete'),
-    
-    
-    path('categories/', views.category_list, name='category_list'),
-    path('categories/<int:pk>/', views.category_detail, name='category_detail'),
-    path('categories/create/', views.category_create, name='category_create'),
-    path('categories/<int:pk>/update/', views.category_update, name='category_update'),
-    path('categories/<int:pk>/delete/', views.category_delete, name='category_delete'),
+    path('signup/', views.SignUpView.as_view(), name='signup'),
+    path('login/', views.LoginView.as_view(), name='login'),
+    path('logout/', views.LogoutView.as_view(), name='logout'),
+    path('activate/<uidb64>/<token>/', views.ActivateAccountView.as_view(), name='activate'),
+    path('profile/', views.ProfileView.as_view(), name='profile'),
+    path('profile/edit/', views.ProfileUpdateView.as_view(), name='profile_edit'),
+    path('profile/password-change/', views.PasswordChangeView.as_view(), name='password_change'),
+    path("participants/create/", views.ParticipantCreateView.as_view(), name="participant_create"),
+    path('password-reset/', views.CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', 
+         auth_views.PasswordResetDoneView.as_view(template_name='events/password_reset_done.html'), 
+         name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/', 
+         views.CustomPasswordResetConfirmView.as_view(), 
+         name='password_reset_confirm'),
+    path('password-reset-complete/', 
+         auth_views.PasswordResetCompleteView.as_view(template_name='events/password_reset_complete.html'), 
+         name='password_reset_complete'),
+    path('', views.DashboardView.as_view(), name='dashboard'),
+    path('admin-dashboard/', views.AdminDashboardView.as_view(), name='admin_dashboard'),
+    path('organizer-dashboard/', views.OrganizerDashboardView.as_view(), name='organizer_dashboard'),
+    path('participant-dashboard/', views.ParticipantDashboardView.as_view(), name='participant_dashboard'),
+    path('events/', views.EventListView.as_view(), name='event_list'),
+    path('events/<int:pk>/', views.EventDetailView.as_view(), name='event_detail'),
+    path('events/create/', views.EventCreateView.as_view(), name='event_create'),
+    path('events/<int:pk>/update/', views.EventUpdateView.as_view(), name='event_update'),
+    path('events/<int:pk>/delete/', views.EventDeleteView.as_view(), name='event_delete'),
+    path('events/<int:pk>/rsvp/', views.RSVPEventView.as_view(), name='rsvp_event'),
+    path('events/<int:pk>/cancel-rsvp/', views.CancelRSVPView.as_view(), name='cancel_rsvp'),
+    path('participants/', views.ParticipantListView.as_view(), name='participant_list'),
+    path('participants/<int:pk>/', views.ParticipantDetailView.as_view(), name='participant_detail'),
+    path('participants/<int:pk>/update/', views.ParticipantUpdateView.as_view(), name='participant_update'),
+    path('participants/<int:pk>/delete/', views.ParticipantDeleteView.as_view(), name='participant_delete'),
+    path('categories/', views.CategoryListView.as_view(), name='category_list'),
+    path('categories/<int:pk>/', views.CategoryDetailView.as_view(), name='category_detail'),
+    path('categories/create/', views.CategoryCreateView.as_view(), name='category_create'),
+    path('categories/<int:pk>/update/', views.CategoryUpdateView.as_view(), name='category_update'),
+    path('categories/<int:pk>/delete/', views.CategoryDeleteView.as_view(), name='category_delete'),
 ]

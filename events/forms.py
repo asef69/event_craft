@@ -1,12 +1,12 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from .models import Event, Category
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
+from .models import CustomUser, Event, Category
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 
-class UserRegistrationForm(UserCreationForm):
+class CustomUserCreationForm(UserCreationForm):
+    """Form for user registration"""
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
@@ -30,10 +30,18 @@ class UserRegistrationForm(UserCreationForm):
             'placeholder': 'Enter your last name'
         })
     )
+    phone_number = forms.CharField(
+        max_length=15,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'placeholder': '+1234567890'
+        })
+    )
 
     class Meta:
-        model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        model = CustomUser
+        fields = ['username', 'email', 'first_name', 'last_name', 'phone_number', 'password1', 'password2']
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
@@ -54,9 +62,66 @@ class UserRegistrationForm(UserCreationForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
+        if CustomUser.objects.filter(email=email).exists():
             raise ValidationError("This email is already registered.")
         return email
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    """Form for updating user profile"""
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'profile_picture']
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'placeholder': 'Enter your first name'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'placeholder': 'Enter your last name'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'placeholder': 'Enter your email'
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'placeholder': '+1234567890'
+            }),
+            'profile_picture': forms.FileInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'accept': 'image/*'
+            }),
+        }
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            existing = CustomUser.objects.filter(email=email)
+            if self.instance.pk:
+                existing = existing.exclude(pk=self.instance.pk)
+            if existing.exists():
+                raise ValidationError("This email is already in use.")
+        return email
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    """Form for changing password"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['old_password'].widget.attrs.update({
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'placeholder': 'Enter old password'
+        })
+        self.fields['new_password1'].widget.attrs.update({
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'placeholder': 'Enter new password'
+        })
+        self.fields['new_password2'].widget.attrs.update({
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'placeholder': 'Confirm new password'
+        })
 
 
 class CategoryForm(forms.ModelForm):
@@ -79,7 +144,7 @@ class CategoryForm(forms.ModelForm):
         name = self.cleaned_data.get('name')
         if name and len(name.strip()) < 2:
             raise ValidationError("Category name must be at least 2 characters long.")
-        return name.strip() if name else name
+        return name.strip() # type: ignore
 
 
 class EventForm(forms.ModelForm):
@@ -127,13 +192,13 @@ class EventForm(forms.ModelForm):
         name = self.cleaned_data.get('name')
         if name and len(name.strip()) < 3:
             raise ValidationError("Event name must be at least 3 characters long.")
-        return name.strip() if name else name
+        return name.strip() # type: ignore
 
 
 class ParticipantForm(forms.ModelForm):
     class Meta:
-        model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        model = CustomUser
+        fields = ['username', 'email', 'first_name', 'last_name', 'phone_number']
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
@@ -151,13 +216,17 @@ class ParticipantForm(forms.ModelForm):
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
                 'placeholder': 'Enter last name'
             }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'placeholder': '+1234567890'
+            }),
         }
     
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if email:
             email = email.lower().strip()
-            existing = User.objects.filter(email=email)
+            existing = CustomUser.objects.filter(email=email)
             if self.instance.pk:
                 existing = existing.exclude(pk=self.instance.pk)
             if existing.exists():
